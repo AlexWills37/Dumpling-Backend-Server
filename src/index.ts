@@ -5,6 +5,7 @@ import { MongoClient } from "mongodb";
 import Session from "./routes/session.js";
 import Telemetry from "./routes/telemetry.js";
 import { Database } from "./structs/database.js";
+import { test } from "./testing.js";
 
 const server = express();
 
@@ -13,14 +14,16 @@ server.use(express.json());
 
 // Setup
 MongoClient.connect(process.env.MongoConnectionURI as string)
-.then((client) => { 
+.then(async (client) => { 
     const db = new Database(client);
 
     server.use("/session", Session(db));
     server.use("/telemetry", Telemetry(db));
 
-    server.listen(80, () => {
-        console.log("Server started.");
-    });
+    // server.listen(80, () => {
+    //     console.log("Server started.");
+    // });
+    await test(db);
+    console.log("Done!");
 })
 

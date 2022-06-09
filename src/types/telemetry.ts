@@ -1,5 +1,6 @@
 export interface Header {
     platform: "Quest2" | "Cardboard";
+    simulation: string;
     version: string;
     size: number;
 }
@@ -12,7 +13,7 @@ export interface Payload {
 export interface TelemetryEntry {
     time: number,
     parameter: string,
-    values: { [key: string]: number | string }
+    values: {[key: string] : any}
 }
 
 /**

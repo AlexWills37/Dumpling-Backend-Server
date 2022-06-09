@@ -24,6 +24,7 @@ An example chunk would look like so,
 {
     "header": {
         "platform": "Quest2", // Can be "Quest2" OR "Cardboard".
+        "simulation": "jellyfish", // The name of the simulation.
         "version": "1.0.0", // The version of the simulation.
         "size": 331, // The amount of telemetry entries in this chunk.
     },
@@ -32,6 +33,7 @@ An example chunk would look like so,
     "sendTime": 1654543713844, // The UNIX Timestamp for when this data was sent, to make sure data chunks are in order.
     "entries": [
         {
+            "time": 1654543713844, // The timestamp for when this was logged.
             "parameter": "look", // The name of the parameter. In this case, look position update.
             "values": [ // An arbitrary list of values relating to the parameter.
                 133.361, 
@@ -40,6 +42,7 @@ An example chunk would look like so,
             ]
         },
         {
+            "time": 1654543713844,
             "parameter": "interact",
             "values": [
                 {
@@ -48,6 +51,7 @@ An example chunk would look like so,
             ]
         },
         {
+            "time": 1654543713844,
             "parameter": "interact",
             "values": [
                 {

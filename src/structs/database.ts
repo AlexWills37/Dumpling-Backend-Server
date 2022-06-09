@@ -23,7 +23,7 @@ export class Database {
         if (session && this.sessions[session]) {
             return this.sessions[session];
         } else {
-            const session = new Session();
+            const session = new Session(this);
             this.sessions[session.getToken()] = session;
             return session;
         }
