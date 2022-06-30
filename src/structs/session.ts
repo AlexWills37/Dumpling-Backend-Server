@@ -23,7 +23,9 @@ export class Session {
         return Buffer.from(JSON.stringify({ t: this.time, s: this.salt })).toString("base64");
     }
 
-
+    /**
+     * Starts the automatic flush for a session
+     */
     public start() {
         if (this.iter != null) return;
 

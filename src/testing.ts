@@ -45,10 +45,10 @@ function generateEntry(): TelemetryEntry {
 
 function generateChunk(size: number, session: string): Chunk {
     const header: Header = {
+        session: session,
         platform: "Quest2",
         simulation: "test",
         version: "1.0.0",
-        size: size
     };
 
     const entries: TelemetryEntry[] = [];

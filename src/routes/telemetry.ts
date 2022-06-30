@@ -10,19 +10,24 @@ export default function Telemetry(client: Database) {
         // Expect JSON data
         const id = req.params.id;
 
-        // We expect 'Chunk' to be 
+        // We expect 'Chunk' to be somethign idk what
     });
 
-    router.get("/payload", async (req, res) => {
-        if (!req.body.session || client.sessionExists(req.body.session)) {
-            res.json(ApiResponse.error("Missing or invalid session token."));
+    /**
+     * @api {get} /telemetry/chunk/:id Get a chunk of telemetry data
+     */
+    router.post("/payload", async (req, res) => {
+        if (!req.body.header || !req.body.header.session || client.sessionExists(req.body.session)) {
+            return res.json(ApiResponse.error("Missing or invalid session token."));
         }
 
         const chunk: Chunk = req.body;
         const session = client.getSession(req.body.session);
 
+        console.log(chunk)
         session.add(chunk);
 
+        res.send("OK");
     })
 
     return router;

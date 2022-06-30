@@ -1,8 +1,8 @@
 export interface Header {
     platform: "Quest2" | "Cardboard";
     simulation: string;
+    session: string;
     version: string;
-    size: number;
 }
 
 export interface Payload {
@@ -24,4 +24,10 @@ export interface Chunk {
     session: string,
     sendTime: number,
     entries: TelemetryEntry[]
+}
+
+declare module "express" {
+    interface Request {
+        json: {[key: string]: any};
+    }
 }
