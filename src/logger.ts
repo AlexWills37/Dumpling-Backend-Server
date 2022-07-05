@@ -18,15 +18,25 @@ export default class Logger {
     }
 
     /**
-     * Intercepts requests, logging their basic information to the console.
-     * @param req The request object
-     * @param res The response object
-     * @param next A function to invoke the next middleware
+     * Creates a function that logs middleware.
+     * @returns The middleware logging function.
      */
-    static middleware(req: any, res: any, next: any) {
-        Logger.log(4, `${req.method} ${req.url}\n` + Object.keys(req.headers).map(x => `\t${x}: ${req.headers[x]}`).join("\n"));
+    static createLoggerMiddleware(withHeaders: boolean = false) {
+        /**
+         * Intercepts requests, logging their basic information to the console.
+         * @param req The request object
+         * @param res The response object
+         * @param next A function to invoke the next middleware
+         */
+        return function middleware(req: any, res: any, next: any) {
+            if (withHeaders) {
+                Logger.log(4, `${req.method} ${req.url}\n` + Object.keys(req.headers).map(x => `\t${x}: ${req.headers[x]}`).join("\n"));
+            } else {
+                Logger.log(4, `${req.method} ${req.url}\n`);
+            }
 
-        next();
+            next();
+        }
     }
 
     /**

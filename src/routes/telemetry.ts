@@ -1,4 +1,6 @@
 import express from "express";
+import { GLOBALS } from "../index.js";
+import Logger from "../logger.js";
 import { ApiResponse } from "../structs/apiresponse.js";
 import { Database } from "../structs/database.js";
 import { Chunk } from "../types/telemetry.js";
@@ -24,8 +26,10 @@ export default function Telemetry(client: Database) {
         const chunk: Chunk = req.body;
         const session = client.getSession(req.body.session);
 
-        console.log(chunk)
         session.add(chunk);
+
+        Logger.info(`Received chunk from ${chunk.header.session} with ${chunk.entries.length} entries.`);
+        GLOBALS.packetsRecieved += chunk.entries.length;
 
         res.send("OK");
     })
