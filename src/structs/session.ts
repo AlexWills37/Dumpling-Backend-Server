@@ -42,15 +42,15 @@ export class Session {
             this.lastHeader == null) return;
 
         this.lastFlush = Date.now();
-        this.db.db(this.lastHeader.platform)
-        .collection(this.lastHeader.simulation)
+        await this.db.db(this.lastHeader.simulation)
+        .collection(this.lastHeader.platform)
         .insertMany(
             this.cache.map((entry) => {
                 (entry as any).session = this.token;
                 return entry;
             })
-        ).then((result) => {
-            console.log(result);
+        ).then((_result) => {
+            this.cache = [ ];
         })
     };
 

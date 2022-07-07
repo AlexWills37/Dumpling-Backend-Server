@@ -24,9 +24,10 @@ export default function Telemetry(client: Database) {
         }
 
         const chunk: Chunk = req.body;
-        const session = client.getSession(req.body.session);
+        const session = client.getSession(chunk.header.session);
 
         session.add(chunk);
+        session.flush();
 
         Logger.info(`Received chunk from ${chunk.header.session} with ${chunk.entries.length} entries.`);
         GLOBALS.packetsRecieved += chunk.entries.length;

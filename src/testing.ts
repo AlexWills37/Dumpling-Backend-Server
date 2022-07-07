@@ -67,7 +67,7 @@ function generateChunk(size: number, session: string): Chunk {
 }
 
 export async function test(db: Database) {
-    const session = db.getSession();
+    const session = db.createSession();
 
     session.add(generateChunk(30, session.getToken()));
     // console.log(generateChunk(10, session.getToken()));

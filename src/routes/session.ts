@@ -10,7 +10,7 @@ export default function Session(db: Database) {
         Logger.info("New session created.");
         res.send(
             ApiResponse.ok({
-                session: db.getSession().getToken()
+                session: db.createSession().getToken()
             })
         );
     });

@@ -38,14 +38,17 @@ export class Database {
      * @param session The sessionid to search for
      * @returns The session
      */
-    public getSession(session?: string) {
-        if (session && this.sessions[session]) {
-            return this.sessions[session];
-        } else {
-            const session = new Session(this);
-            this.sessions[session.getToken()] = session;
-            return session;
-        }
+    public getSession(session: string) {
+        return this.sessions[session];
+    }
+
+    /**
+     * Creates a new session.
+     */
+    public createSession() {
+        const session = new Session(this);
+        this.sessions[session.getToken()] = session;
+        return session;
     }
 
     /**
