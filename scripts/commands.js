@@ -7,19 +7,33 @@ require("dotenv").config();
     const args = process.argv.slice(2);
     const command = args[0];
     
+    if (!command) {
+        console.log("Usage: <command> [<args>]");
+        console.log(
+            "Commands:\n" +
+            " - dump <simulation> <platform> <sessionid>\n" +
+            " - listDatabases\n" +
+            " - listCollectionsInDatabase <database>"
+        );
+        process.exit(1);
+    }
     switch (command.toLowerCase()) {
         case "dump":
-            if (args.length != 4) {
+            if (args.length > 3) {
                 await dump(args[1], args[2], args[3]);
             } else {
                 console.log("Usage: dump <simulation> <platform> <session>");
             }
             break;
-        case "list":
-            if (args.length != 2) {
-                console.log("Usage: list <simulation | platforms>");
+        case "listdatabases":
+            await listDatabases();
+            break;
+        case "listcollectionsindatabase":
+            if (args.length != 3) {
+                await listCollectionsInDatabase(args[1]);
+            } else {
+                console.log("Usage: listCollectionsInDatabase <database>");
             }
-            await list(args[1]);
             break;
         default:
             break;
@@ -37,6 +51,28 @@ function format(val) {
     }
 }
 
+async function listDatabases() {
+    const mongo = new mongodb.MongoClient(process.env.MongoConnectionURI);
+    await mongo.connect();
+    const databases = await mongo.db()
+        .admin()
+        .listDatabases();
+
+    const entries = databases.databases.map(x => x.name)
+        .filter(x => !["admin", "local"].includes(x))
+
+    console.log(console.log("Databases: \n" + entries.join("\n")));
+    process.exit(1);
+}
+
+async function listCollectionsInDatabase(database) {
+    const mongo = new mongodb.MongoClient(process.env.MongoConnectionURI);
+    await mongo.connect();
+    const collections = await mongo.db(database).listCollections().toArray();
+    console.log("Collections: \n" + collections.map(x => x.name).join("\n"));
+    process.exit(1);
+}
+
 async function dump(simulation, platform, session) {
     const mongo = new mongodb.MongoClient(process.env.MongoConnectionURI);
     await mongo.connect();
@@ -51,9 +87,10 @@ async function dump(simulation, platform, session) {
     }
 
     let result = "";
-    result += Object.keys(entries[0]).slice(1).join(",") + "\n";
+    result += Object.keys(entries[0]).slice(1, -1).join(",") + "\n";
     for (const entry of entries) {
         delete entry._id;
+        delete entry.session;
         result += Object.values(entry).map(x => format(x)).join(",") + "\n";
     }
 

@@ -2,7 +2,8 @@
 Storing telemetry data will have to seperate modes depending on available internet conductivity. **Chunks** and **Payload**.
 
 ## Chunks
-Communicating telemetry data as chunks will involve two parts, the initialization handshake followed by sending a 'chunk' payload whenever possible.
+Communicating telemetry data as chunks will involve two parts, the initialization handshake followed by sending a 'chunk' of data when x number of frames have passed.
+
 
 ### Authentication 
 The Initialization handshake will involve making a simple GET request to the webserver. When sent, if the server is active and live **Which it will not be once user testing ends**, will return an object that looks something like this. ``data.session`` is the session key. With each chunk of data, this value must be attached within the "session" field of the chunk request. This key should be collected on simulation start, and used up until to the end of the simulation, as it's simply used to keep track of who the telemetry data chunk belongs to, as there may be many chunks sent from one simulation.
@@ -20,46 +21,22 @@ The Initialization handshake will involve making a simple GET request to the web
 
 ### Chunk Format
 An example chunk would look like so,
-```json
+```js
 {
     "header": {
         "platform": "Quest2", // Can be "Quest2" OR "Cardboard".
-        "simulation": "jellyfish", // The name of the simulation.
+        "simulation": "twizzler", // The name of the simulation.
         "version": "1.0.0", // The version of the simulation.
-        "size": 331, // The amount of telemetry entries in this chunk.
+        "size": 115, // The amount of telemetry entries in this chunk.
+        "session": "eyJ0IjoxNjU5MjQwMDk4MjY4LCJzIjo4Fq==" // The unique session key.
     },
-
-    "session": "eyJ0IjoxNjU0NTQzNDY5Nzk5LCJzIjo0fQ==", // The session key taken from above
-    "sendTime": 1654543713844, // The UNIX Timestamp for when this data was sent, to make sure data chunks are in order.
     "entries": [
         {
-            "time": 1654543713844, // The timestamp for when this was logged.
-            "parameter": "look", // The name of the parameter. In this case, look position update.
-            "values": [ // An arbitrary list of values relating to the parameter.
-                133.361, 
-                74.227,
-                -179.397
-            ]
-        },
-        {
-            "time": 1654543713844,
-            "parameter": "interact",
-            "values": [
-                {
-                    "entityName": "manatee1" 
-                }
-            ]
-        },
-        {
-            "time": 1654543713844,
-            "parameter": "interact",
-            "values": [
-                {
-                    "entityName": "seagrass13" 
-                }
-            ]
-        },
-
-        ... // And so on
+            "name": "string",
+            "vec": { x: 0, y: 0, z: 0 } || null,
+            "textContent": "string" || null,
+            "intContent": 0,
+            "time": 35616734212 // The unix time stamp for the entry.
+        }
     ]
-}
+}```
