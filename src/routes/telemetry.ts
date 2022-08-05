@@ -11,8 +11,6 @@ export default function Telemetry(client: Database) {
     router.get("/chunk:id", (req, res) => {
         // Expect JSON data
         const id = req.params.id;
-
-        // We expect 'Chunk' to be somethign idk what
     });
 
     /**
