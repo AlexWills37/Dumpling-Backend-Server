@@ -6,11 +6,12 @@ require("dotenv").config();
 (async () => {
     const args = process.argv.slice(2);
     const command = args[0];
-    
+
     if (!command) {
         console.log("Usage: <command> [<args>]");
         console.log(
             "Commands:\n" +
+            " - export <sessionid>\n" +
             " - dump <simulation> <platform> <sessionid>\n" +
             " - listDatabases\n" +
             " - listCollectionsInDatabase <database>"
@@ -18,6 +19,13 @@ require("dotenv").config();
         process.exit(1);
     }
     switch (command.toLowerCase()) {
+        case "export":
+            if (args.length > 1) {
+                await exportSession(args[1]);
+            } else {
+                console.log("Usage: export <session>");
+            }
+            break;
         case "dump":
             if (args.length > 3) {
                 await dump(args[1], args[2], args[3]);
@@ -98,10 +106,69 @@ async function dump(simulation, platform, session) {
     process.exit(1);
 }
 
+async function exportSession(session) {
+    const client = new mongodb.MongoClient(process.env.MongoConnectionURI);
+    const databases = await client.db().admin().listDatabases();
+
+    let entries;
+    let databaseCachedName;
+    let collectionCachedName;
+
+    for (const db of databases.databases) {
+        const databaseName = db.name;
+        const collections = await client.db(databaseName).listCollections().toArray();
+
+        for (const collection of collections) {
+            const collectionName = collection.name;
+            const documents = await client.db(databaseName).collection(collectionName).find({ session: session }).toArray();
+
+            entries = documents;
+
+            // Break from the nested for loops
+            if (entries.length > 0) {
+                databaseCachedName = databaseName;
+                collectionCachedName = collectionName;
+                break;
+            }
+        }
+        if (entries.length > 0) {
+            break;
+        }
+    }
+
+    await client.close();
+
+    // Sort them from earliest to latest
+    entries.sort((a, b) => a.timestamp - b.timestamp);
+
+    let result = "";
+    result += Object.keys(entries[0]).slice(1, -1).join(",") + "\n";
+    for (const entry of entries) {
+        delete entry._id;
+        delete entry.session;
+        result += Object.values(entry).map(x => format(x)).join(",") + "\n";
+    }
+
+    // Get the time from the first entry to the last entry, print the time between in minutes and seconds.
+    const time = (entries[entries.length - 1].time - entries[0].time) / 1000;
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    fs.writeFileSync(`${session}.csv`, result);
+
+    console.log(
+        `Exported ${session} to ${session}.csv\n` +
+        `\t | Simulation Time: ${minutes} minutes and ${seconds} seconds\n` +
+        `\t | Entries: ${entries.length}\n` +
+        `\t | Session: ${session}\n` + 
+        `\t | Database: ${databaseCachedName}\n` +
+        `\t | Collection: ${collectionCachedName}`
+    )
+}
+
 async function list(para) {
     const mongo = new mongodb.MongoClient(process.env.MongoConnectionURI);
     await mongo.connect();
-    
+
     const simulations = await mongo.db("simulations").listCollections().toArray();
     const platforms = await mongo.db("platforms").listCollections().toArray();
 
