@@ -138,6 +138,11 @@ async function exportSession(session) {
 
     await client.close();
 
+    if (entries.length === 0) {
+        console.log("No entries matching the provided session found.");
+        return;
+    }
+
     // Sort them from earliest to latest
     entries.sort((a, b) => a.timestamp - b.timestamp);
 
